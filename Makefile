@@ -1,10 +1,13 @@
 .SILENT:
 
+BINARY_NAME = URLShortener
+BINARY_PATH = ./bin/$(BINARY_NAME)
+
 run: build
-	./bin/URLShortener
+	CONFIG_PATH="./config/config.yml" $(BINARY_PATH)
 
 build:
-	go build -o ./bin/URLShortener ./cmd/main.go
+	go build -o $(BINARY_PATH) ./cmd/main.go
 
 update:
 	go get -u ./...
