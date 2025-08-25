@@ -9,7 +9,6 @@ import (
 	"go.uber.org/zap"
 
 	"github.com/mrzlkvvv/URLShortener/internal/config"
-	"github.com/mrzlkvvv/URLShortener/internal/logger"
 	"github.com/mrzlkvvv/URLShortener/internal/storage"
 )
 
@@ -23,7 +22,7 @@ type Storage struct {
 }
 
 func New(cfg *config.Storage) *Storage {
-	l := logger.New()
+	l := zap.L()
 
 	db, err := sql.Open("sqlite3", cfg.DSN)
 	if err != nil {
@@ -78,4 +77,8 @@ func (s *Storage) GetURL(alias string) (string, error) {
 	}
 
 	return url, nil
+}
+
+func (s *Storage) Shutdown() error {
+	return s.db.Close()
 }

@@ -49,7 +49,3 @@ func Init(env string, cfg *config.Logger) {
 		zap.ReplaceGlobals(l)
 	})
 }
-
-func New() *zap.Logger {
-	return zap.L()
-}

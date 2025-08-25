@@ -8,9 +8,8 @@ import (
 	"github.com/go-playground/validator/v10"
 	"go.uber.org/zap"
 
-	"github.com/mrzlkvvv/URLShortener/internal/http-server/response"
-	"github.com/mrzlkvvv/URLShortener/internal/logger"
 	"github.com/mrzlkvvv/URLShortener/internal/random"
+	"github.com/mrzlkvvv/URLShortener/internal/server/response"
 	"github.com/mrzlkvvv/URLShortener/internal/storage"
 )
 
@@ -26,14 +25,10 @@ type Response struct {
 	Alias string `json:"alias"`
 }
 
-type URLSaver interface {
-	SaveURL(alias, url string) error
-}
-
-func Create(urlSaver URLSaver) http.HandlerFunc {
+func Create(urlSaver storage.URLSaver) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 
-		l := logger.New()
+		l := zap.L()
 
 		var req Request
 		err := render.DecodeJSON(r.Body, &req)

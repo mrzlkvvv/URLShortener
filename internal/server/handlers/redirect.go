@@ -8,19 +8,14 @@ import (
 	"github.com/go-chi/render"
 	"go.uber.org/zap"
 
-	"github.com/mrzlkvvv/URLShortener/internal/http-server/response"
-	"github.com/mrzlkvvv/URLShortener/internal/logger"
+	"github.com/mrzlkvvv/URLShortener/internal/server/response"
 	"github.com/mrzlkvvv/URLShortener/internal/storage"
 )
 
-type URLGetter interface {
-	GetURL(alias string) (string, error)
-}
-
-func Redirect(urlGetter URLGetter) http.HandlerFunc {
+func Redirect(urlGetter storage.URLGetter) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 
-		l := logger.New()
+		l := zap.L()
 
 		alias := chi.URLParam(r, "alias")
 		if alias == "" {
