@@ -73,7 +73,7 @@ func (s *Storage) GetURL(alias string) (string, error) {
 		if errors.Is(err, sql.ErrNoRows) {
 			return "", storage.ErrUrlIsNotExists
 		}
-		return "", fmt.Errorf("Get URL error: %s", err)
+		return "", fmt.Errorf("getting URL error: %s", err)
 	}
 
 	return url, nil
