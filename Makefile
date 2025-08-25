@@ -15,3 +15,6 @@ update:
 
 lint:
 	golangci-lint run ./... --config=./config/.golangci.yml
+
+test:
+	go test -vet=off ./...
