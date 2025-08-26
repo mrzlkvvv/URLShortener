@@ -4,7 +4,7 @@ BINARY_NAME = URLShortener
 BINARY_PATH = ./bin/$(BINARY_NAME)
 
 run: build
-	CONFIG_PATH="./config/config.yml" $(BINARY_PATH)
+	DOTENV_PATH="./config/.env" $(BINARY_PATH)
 
 build:
 	go build -o $(BINARY_PATH) ./cmd/main.go
@@ -14,7 +14,7 @@ update:
 	go mod tidy
 
 lint:
-	golangci-lint run ./... --config=./config/.golangci.yml
+	golangci-lint run ./{cmd,internal}/... --config=./config/.golangci.yml
 
 test:
 	go test -vet=off ./...

@@ -8,9 +8,9 @@ import (
 	"github.com/go-playground/validator/v10"
 	"go.uber.org/zap"
 
+	"github.com/mrzlkvvv/URLShortener/internal/database"
 	"github.com/mrzlkvvv/URLShortener/internal/random"
 	"github.com/mrzlkvvv/URLShortener/internal/server/response"
-	"github.com/mrzlkvvv/URLShortener/internal/storage"
 )
 
 const ALIAS_LENGTH = 6
@@ -25,7 +25,7 @@ type Response struct {
 	Alias string `json:"alias"`
 }
 
-func Create(urlSaver storage.URLSaver) http.HandlerFunc {
+func Create(urlSaver database.URLSaver) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 
 		l := zap.L()
@@ -54,7 +54,7 @@ func Create(urlSaver storage.URLSaver) http.HandlerFunc {
 		err = urlSaver.SaveURL(alias, req.URL)
 		if err != nil {
 
-			if errors.Is(err, storage.ErrUrlAlreadyExists) {
+			if errors.Is(err, database.ErrUrlAlreadyExists) {
 				render.JSON(w, r, response.Error("url already exists"))
 				l.Error("URL saving is failed", zap.Error(err))
 				return

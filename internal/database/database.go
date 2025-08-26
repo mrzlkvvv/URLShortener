@@ -1,4 +1,4 @@
-package storage
+package database
 
 import "errors"
 
@@ -7,10 +7,10 @@ var (
 	ErrUrlAlreadyExists = errors.New("URL already exists")
 )
 
-type Storage interface {
+type Database interface {
 	URLSaver
 	URLGetter
-	Shutdown() error
+	Shutdown()
 }
 
 type URLSaver interface {

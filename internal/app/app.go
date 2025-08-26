@@ -10,31 +10,34 @@ import (
 	"go.uber.org/zap"
 
 	"github.com/mrzlkvvv/URLShortener/internal/config"
+	"github.com/mrzlkvvv/URLShortener/internal/database"
+	"github.com/mrzlkvvv/URLShortener/internal/database/postgres"
 	"github.com/mrzlkvvv/URLShortener/internal/logger"
 	"github.com/mrzlkvvv/URLShortener/internal/server"
-	"github.com/mrzlkvvv/URLShortener/internal/storage"
-	"github.com/mrzlkvvv/URLShortener/internal/storage/sqlite"
 )
 
 type App struct {
-	config  *config.Config
-	logger  *zap.Logger
-	storage storage.Storage
-	server  *http.Server
+	config   *config.App
+	logger   *zap.Logger
+	database database.Database
+	server   *http.Server
 }
 
 func New() *App {
 	cfg := config.MustLoad()
-	logger.Init(cfg.Env, cfg.Logger)
 
+	logger.Init(cfg.Env, cfg.Logger)
 	l := zap.L()
-	s := sqlite.New(cfg.Storage)
+
+	l.Debug("Config readed", zap.Any("config", cfg))
+
+	db := postgres.New(cfg.Database)
 
 	return &App{
-		config:  cfg,
-		logger:  l,
-		storage: s,
-		server:  server.New(l, s, cfg.HTTPServer),
+		config:   cfg,
+		logger:   l,
+		database: db,
+		server:   server.New(l, db, cfg.Server),
 	}
 }
 
@@ -67,7 +70,7 @@ func (a *App) Start() {
 func (a *App) shutdown() {
 	ctx, cancel := context.WithTimeout(
 		context.Background(),
-		a.config.HTTPServer.Timeout+1*time.Second,
+		a.config.Server.Timeout+1*time.Second,
 	)
 	defer cancel()
 
@@ -76,10 +79,7 @@ func (a *App) shutdown() {
 		a.logger.Error("Server shutdown failed", zap.Error(err))
 	}
 
-	err = a.storage.Shutdown()
-	if err != nil {
-		a.logger.Error("Storage shutdown failed", zap.Error(err))
-	}
+	a.database.Shutdown()
 
 	_ = a.logger.Sync()
 }

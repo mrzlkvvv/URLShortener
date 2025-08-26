@@ -8,20 +8,20 @@ import (
 	"go.uber.org/zap"
 
 	"github.com/mrzlkvvv/URLShortener/internal/config"
+	"github.com/mrzlkvvv/URLShortener/internal/database"
 	"github.com/mrzlkvvv/URLShortener/internal/server/handlers"
 	mwLogger "github.com/mrzlkvvv/URLShortener/internal/server/middleware/logger"
-	"github.com/mrzlkvvv/URLShortener/internal/storage"
 )
 
-func New(l *zap.Logger, s storage.Storage, cfg *config.HTTPServer) *http.Server {
+func New(l *zap.Logger, db database.Database, cfg *config.Server) *http.Server {
 	router := chi.NewRouter()
 
 	router.Use(middleware.RequestID)
 	router.Use(mwLogger.Logger(l))
 	router.Use(middleware.URLFormat)
 
-	router.Get("/{alias}", handlers.Redirect(s))
-	router.Post("/create", handlers.Create(s))
+	router.Get("/{alias}", handlers.Redirect(db))
+	router.Post("/create", handlers.Create(db))
 
 	return &http.Server{
 		Addr:         cfg.Address,

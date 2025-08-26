@@ -8,11 +8,11 @@ import (
 	"github.com/go-chi/render"
 	"go.uber.org/zap"
 
+	"github.com/mrzlkvvv/URLShortener/internal/database"
 	"github.com/mrzlkvvv/URLShortener/internal/server/response"
-	"github.com/mrzlkvvv/URLShortener/internal/storage"
 )
 
-func Redirect(urlGetter storage.URLGetter) http.HandlerFunc {
+func Redirect(urlGetter database.URLGetter) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 
 		l := zap.L()
@@ -26,7 +26,7 @@ func Redirect(urlGetter storage.URLGetter) http.HandlerFunc {
 
 		url, err := urlGetter.GetURL(alias)
 		if err != nil {
-			if errors.Is(err, storage.ErrUrlIsNotExists) {
+			if errors.Is(err, database.ErrUrlIsNotExists) {
 				render.JSON(w, r, response.Error("url not found"))
 				l.Info("url not found", zap.String("alias", alias))
 				return
