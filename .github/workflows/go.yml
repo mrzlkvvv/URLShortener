@@ -16,7 +16,7 @@ jobs:
                   go-version: "stable"
 
             - name: Build
-              run: make build
+              run: go build -o ./bin/URLShortener ./cmd/main.go
 
             - name: Test
               run: make test
