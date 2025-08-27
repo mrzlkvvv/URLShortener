@@ -2,6 +2,7 @@ package config
 
 import (
 	"fmt"
+	"log"
 	"os"
 	"strconv"
 	"time"
@@ -32,9 +33,10 @@ const (
 )
 
 func init() {
-	err := godotenv.Load(mustGetEnv(DOTENV_PATH_KEY))
+	// .env file is optional
+	err := godotenv.Load(os.Getenv(DOTENV_PATH_KEY))
 	if err != nil {
-		panic(err)
+		log.Printf("Error loading .env file: %v; continuing without it...\n", err)
 	}
 }
 

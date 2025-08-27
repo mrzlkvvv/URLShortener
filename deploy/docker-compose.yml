@@ -1,0 +1,42 @@
+services:
+    urlshortener:
+        container_name: urlshortener
+        build:
+            context: ..
+            dockerfile: ./deploy/Dockerfile
+        image: urlshortener:latest
+        env_file: ../config/.env
+        networks:
+            - net
+        ports:
+            - "8080:8080"
+        depends_on:
+            postgres:
+                condition: service_healthy
+        restart: always
+
+    postgres:
+        container_name: postgres
+        image: postgres:alpine
+        env_file: ../config/.env
+        volumes:
+            - postgres_data:/var/lib/postgresql/data
+        networks:
+            - net
+        restart: always
+        healthcheck:
+            test:
+                [
+                    "CMD-SHELL",
+                    "pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}",
+                ]
+            interval: 5s
+            start_period: 10s
+
+volumes:
+    postgres_data:
+
+networks:
+    net:
+        name: net
+        driver: bridge

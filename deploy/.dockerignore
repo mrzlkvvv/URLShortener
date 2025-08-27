@@ -1,0 +1,6 @@
+*
+!cmd/
+!config/.env
+!internal/
+!go.mod
+!go.sum

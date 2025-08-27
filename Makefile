@@ -1,13 +1,17 @@
 .SILENT:
 
-BINARY_NAME = URLShortener
-BINARY_PATH = ./bin/$(BINARY_NAME)
+COMPOSE_PATH = ./deploy/docker-compose.yml
+COMPOSE_DEV_OVERRIDE_PATH = ./deploy/docker-compose.dev-override.yml
 
-run: build
-	DOTENV_PATH="./config/.env" $(BINARY_PATH)
+up-dev:
+	docker compose -f $(COMPOSE_PATH) -f $(COMPOSE_DEV_OVERRIDE_PATH) build
+	docker compose -f $(COMPOSE_PATH) -f $(COMPOSE_DEV_OVERRIDE_PATH) up
+	docker compose -f $(COMPOSE_PATH) -f $(COMPOSE_DEV_OVERRIDE_PATH) down
 
-build:
-	go build -o $(BINARY_PATH) ./cmd/main.go
+up-prod:
+	docker compose -f $(COMPOSE_PATH) build
+	docker compose -f $(COMPOSE_PATH) up
+	docker compose -f $(COMPOSE_PATH) down
 
 update:
 	go get -u ./...
