@@ -1,6 +1,9 @@
 package database
 
-import "errors"
+import (
+	"context"
+	"errors"
+)
 
 var (
 	ErrUrlIsNotExists   = errors.New("URL is not exists")
@@ -14,9 +17,9 @@ type Database interface {
 }
 
 type URLSaver interface {
-	SaveURL(alias, url string) error
+	SaveURL(ctx context.Context, alias, url string) error
 }
 
 type URLGetter interface {
-	GetURL(alias string) (string, error)
+	GetURL(ctx context.Context, alias string) (string, error)
 }

@@ -51,7 +51,7 @@ func Create(urlSaver database.URLSaver) http.HandlerFunc {
 			alias = random.NewRandomString(ALIAS_LENGTH)
 		}
 
-		err = urlSaver.SaveURL(alias, req.URL)
+		err = urlSaver.SaveURL(r.Context(), alias, req.URL)
 		if err != nil {
 
 			if errors.Is(err, database.ErrUrlAlreadyExists) {

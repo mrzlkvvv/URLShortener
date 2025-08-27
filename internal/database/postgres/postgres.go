@@ -60,9 +60,9 @@ func New(cfg *config.Database) *Database {
 	return &Database{pool: pool}
 }
 
-func (s *Database) SaveURL(alias, url string) error {
+func (s *Database) SaveURL(ctx context.Context, alias, url string) error {
 	_, err := s.pool.Exec(
-		context.Background(),
+		ctx,
 		"INSERT INTO urls(alias, url) VALUES($1, $2)",
 		alias, url,
 	)
@@ -80,11 +80,11 @@ func (s *Database) SaveURL(alias, url string) error {
 	return nil
 }
 
-func (s *Database) GetURL(alias string) (string, error) {
+func (s *Database) GetURL(ctx context.Context, alias string) (string, error) {
 	var url string
 
 	err := s.pool.QueryRow(
-		context.Background(),
+		ctx,
 		"SELECT url FROM urls WHERE alias = $1",
 		alias,
 	).Scan(&url)

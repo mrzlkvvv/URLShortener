@@ -24,7 +24,7 @@ func Redirect(urlGetter database.URLGetter) http.HandlerFunc {
 			return
 		}
 
-		url, err := urlGetter.GetURL(alias)
+		url, err := urlGetter.GetURL(r.Context(), alias)
 		if err != nil {
 			if errors.Is(err, database.ErrUrlIsNotExists) {
 				render.JSON(w, r, response.Error("url not found"))
