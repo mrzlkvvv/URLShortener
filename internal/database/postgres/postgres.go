@@ -25,15 +25,20 @@ type Database struct {
 func New(cfg *config.Database) *Database {
 	l := zap.L()
 
-	connConfig, err := pgxpool.ParseConfig(cfg.DSN)
+	poolConfig, err := pgxpool.ParseConfig(cfg.DSN)
 	if err != nil {
 		l.Fatal("Parse config error", zap.Error(err))
 	}
 
-	connConfig.MaxConns = cfg.Pool.MaxConns
-	connConfig.MinConns = cfg.Pool.MinConns
+	poolConfig.MaxConns = cfg.Pool.MaxConns
+	poolConfig.MinConns = cfg.Pool.MinConns
+	poolConfig.MinIdleConns = cfg.Pool.MinIdleConns
+	poolConfig.MaxConnLifetime = cfg.Pool.MaxConnLifetime
+	poolConfig.MaxConnLifetimeJitter = cfg.Pool.MaxConnLifetimeJitter
+	poolConfig.MaxConnIdleTime = cfg.Pool.MaxConnIdleTime
+	poolConfig.HealthCheckPeriod = cfg.Pool.HealthCheckPeriod
 
-	pool, err := pgxpool.NewWithConfig(context.Background(), connConfig)
+	pool, err := pgxpool.NewWithConfig(context.Background(), poolConfig)
 	if err != nil {
 		l.Fatal("Connect to database error", zap.Error(err))
 	}

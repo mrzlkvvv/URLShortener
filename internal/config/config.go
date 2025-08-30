@@ -21,13 +21,18 @@ const (
 	SERVER_TIMEOUT_KEY     = "SERVER_TIMEOUT"
 	SERVER_IDLETIMEOUT_KEY = "SERVER_IDLETIMEOUT"
 
-	DATABASE_USER_KEY          = "POSTGRES_USER"
-	DATABASE_PASSWORD_KEY      = "POSTGRES_PASSWORD"
-	DATABASE_HOST_KEY          = "POSTGRES_HOST"
-	DATABASE_PORT_KEY          = "POSTGRES_PORT"
-	DATABASE_DBNAME_KEY        = "POSTGRES_DB"
-	DATABASE_POOL_MAXCONNS_KEY = "DATABASE_POOL_MAXCONNS"
-	DATABASE_POOL_MINCONNS_KEY = "DATABASE_POOL_MINCONNS"
+	DATABASE_USER_KEY                       = "POSTGRES_USER"
+	DATABASE_PASSWORD_KEY                   = "POSTGRES_PASSWORD"
+	DATABASE_HOST_KEY                       = "POSTGRES_HOST"
+	DATABASE_PORT_KEY                       = "POSTGRES_PORT"
+	DATABASE_DBNAME_KEY                     = "POSTGRES_DB"
+	DATABASE_POOL_MAXCONNS_KEY              = "DATABASE_POOL_MAXCONNS"
+	DATABASE_POOL_MINIDLECONNS_KEY          = "DATABASE_POOL_MINCONNS"
+	DATABASE_POOL_MINCONNS_KEY              = "DATABASE_POOL_MINIDLECONNS"
+	DATABASE_POOL_MAXCONNLIFETIME_KEY       = "DATABASE_POOL_MAXCONNLIFETIME"
+	DATABASE_POOL_MAXCONNLIFETIMEJITTER_KEY = "DATABASE_POOL_MAXCONNLIFETIMEJITTER"
+	DATABASE_POOL_MAXCONNIDLETIME_KEY       = "DATABASE_POOL_MAXCONNIDLETIME"
+	DATABASE_POOL_HEALTHCHECKPERIOD_KEY     = "DATABASE_POOL_HEALTHCHECKPERIOD"
 
 	LOGGER_LEVEL_KEY = "LOGGER_LEVEL"
 )
@@ -60,20 +65,20 @@ func mustGetEnv(key string) string {
 }
 
 func mustLoadServer() *Server {
-	timeout, err := strconv.Atoi(mustGetEnv(SERVER_TIMEOUT_KEY))
+	timeout, err := time.ParseDuration(mustGetEnv(SERVER_TIMEOUT_KEY))
 	if err != nil {
 		panic(err)
 	}
 
-	idleTimeout, err := strconv.Atoi(mustGetEnv(SERVER_IDLETIMEOUT_KEY))
+	idleTimeout, err := time.ParseDuration(mustGetEnv(SERVER_IDLETIMEOUT_KEY))
 	if err != nil {
 		panic(err)
 	}
 
 	return &Server{
 		Address:     mustGetEnv(SERVER_HOST_KEY) + ":" + mustGetEnv(SERVER_PORT_KEY),
-		Timeout:     time.Second * time.Duration(timeout),
-		IdleTimeout: time.Second * time.Duration(idleTimeout),
+		Timeout:     timeout,
+		IdleTimeout: idleTimeout,
 	}
 }
 
@@ -97,11 +102,41 @@ func mustLoadDatabase() *Database {
 		panic(err)
 	}
 
+	minIdleConns, err := strconv.ParseInt(mustGetEnv(DATABASE_POOL_MINIDLECONNS_KEY), 10, 32)
+	if err != nil {
+		panic(err)
+	}
+
+	maxConnLifetime, err := time.ParseDuration(mustGetEnv(DATABASE_POOL_MAXCONNLIFETIME_KEY))
+	if err != nil {
+		panic(err)
+	}
+
+	maxConnLifetimeJitter, err := time.ParseDuration(mustGetEnv(DATABASE_POOL_MAXCONNLIFETIMEJITTER_KEY))
+	if err != nil {
+		panic(err)
+	}
+
+	maxConnIdletime, err := time.ParseDuration(mustGetEnv(DATABASE_POOL_MAXCONNIDLETIME_KEY))
+	if err != nil {
+		panic(err)
+	}
+
+	healthCheckPeriod, err := time.ParseDuration(mustGetEnv(DATABASE_POOL_HEALTHCHECKPERIOD_KEY))
+	if err != nil {
+		panic(err)
+	}
+
 	return &Database{
 		DSN: dsn,
 		Pool: &Pool{
-			MaxConns: int32(maxConns),
-			MinConns: int32(minConns),
+			MaxConns:              int32(maxConns),
+			MinConns:              int32(minConns),
+			MinIdleConns:          int32(minIdleConns),
+			MaxConnLifetime:       maxConnLifetime,
+			MaxConnLifetimeJitter: maxConnLifetimeJitter,
+			MaxConnIdleTime:       maxConnIdletime,
+			HealthCheckPeriod:     healthCheckPeriod,
 		},
 	}
 }

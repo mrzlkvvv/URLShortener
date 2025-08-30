@@ -21,8 +21,13 @@ type Database struct {
 }
 
 type Pool struct {
-	MaxConns int32
-	MinConns int32
+	MaxConns              int32
+	MinConns              int32
+	MinIdleConns          int32
+	MaxConnLifetime       time.Duration
+	MaxConnLifetimeJitter time.Duration
+	MaxConnIdleTime       time.Duration
+	HealthCheckPeriod     time.Duration
 }
 
 type Logger struct {
